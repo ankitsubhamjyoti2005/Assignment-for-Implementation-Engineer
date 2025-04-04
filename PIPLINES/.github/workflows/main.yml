@@ -1,0 +1,31 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Unit Tests
+        run: |
+          pip install -r requirements.txt
+          pytest tests/unit
+
+      - name: Run Security Scan (Trivy)
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh
+          trivy image onfinance-api:latest
+
+  trigger-jenkins:
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jenkins Job
+        run: |
+          curl -X POST "http://<Jenkins-EC2-IP>:8080/job/OnFinance-Build/deploy" --user "admin:<JENKINS_API_TOKEN>"
