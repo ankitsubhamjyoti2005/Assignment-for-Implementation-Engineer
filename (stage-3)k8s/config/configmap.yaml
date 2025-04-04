@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DATABASE_HOST: "onfinance-db.cluster-us-east-1.rds.amazonaws.com"
+  APP_ENV: "production"
